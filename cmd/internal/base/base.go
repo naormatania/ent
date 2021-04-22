@@ -208,6 +208,9 @@ func createDir(target string) error {
 	if target != defaultSchema {
 		return nil
 	}
+	if err := ioutil.WriteFile("ent/entc.go", []byte(entcFile), 0644); err != nil {
+		return fmt.Errorf("creating entc.go file: %w", err)
+	}
 	if err := ioutil.WriteFile("ent/generate.go", []byte(genFile), 0644); err != nil {
 		return fmt.Errorf("creating generate.go file: %w", err)
 	}
@@ -240,7 +243,26 @@ const (
 	// default schema package path.
 	defaultSchema = "ent/schema"
 	// ent/generate.go file used for "go generate" command.
-	genFile = "package ent\n\n//go:generate go run -mod=mod entgo.io/ent/cmd/ent generate ./schema\n"
+	genFile = "package ent\n\n//go:generate go run -mod=mod entc.go\n"
+	// ent/entc.go executed by the "ent/generate.go" file.
+	entcFile = `// +build ignore
+
+package main
+
+import (
+	"log"
+
+	"entgo.io/ent/entc"
+	"entgo.io/ent/entc/gen"
+)
+
+func main() {
+	err := entc.Generate("./schema", &gen.Config{})
+	if err != nil {
+		log.Fatalf("running ent codegen: %v", err)
+	}
+}
+`
 )
 
 // examples formats the given examples to the cli.

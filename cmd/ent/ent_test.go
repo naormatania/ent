@@ -22,6 +22,8 @@ func TestCmd(t *testing.T) {
 
 	_, err := os.Stat("ent/generate.go")
 	require.NoError(t, err)
+	_, err = os.Stat("ent/entc.go")
+	require.NoError(t, err)
 	_, err = os.Stat("ent/schema/user.go")
 	require.NoError(t, err)
 
